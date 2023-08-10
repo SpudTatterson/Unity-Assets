@@ -7,6 +7,7 @@ public class PrefabReplacer : EditorWindow
 {
 
     UnityEngine.Object prefabToReplace;
+    bool resetScale;
 
 
     [MenuItem("Tools/Prefabs/PrefabReplacer")]
@@ -16,11 +17,11 @@ public class PrefabReplacer : EditorWindow
     }
     private void OnGUI()
     {
-        GUILayout.Label("Replace selection with given prefab",EditorStyles.boldLabel);
+        GUILayout.Label("Replace selection with given prefab", EditorStyles.boldLabel);
 
-        prefabToReplace = EditorGUILayout.ObjectField("Model", prefabToReplace, typeof(UnityEngine.Object),true) as UnityEngine.Object;
-        
-        
+        prefabToReplace = EditorGUILayout.ObjectField("Model", prefabToReplace, typeof(UnityEngine.Object), true) as UnityEngine.Object;
+        resetScale = EditorGUILayout.Toggle("Reset Scale", resetScale);
+
         if (GUILayout.Button("Replace Prefabs"))
         {
             ReplacePrefab();
@@ -30,23 +31,28 @@ public class PrefabReplacer : EditorWindow
     void ReplacePrefab()
     {
         if (prefabToReplace == null)
-    {
-        Debug.LogWarning("Prefab is not assigned.");
-        return;
-    }
+        {
+            Debug.LogWarning("Prefab is not assigned.");
+            return;
+        }
 
-    Undo.RegisterCompleteObjectUndo(Selection.gameObjects, "Replace with Prefab");
+        Undo.RegisterCompleteObjectUndo(Selection.gameObjects, "Replace with Prefab");
 
-    foreach (var selectedObject in Selection.gameObjects)
-    {
-        var newObject = PrefabUtility.InstantiatePrefab(prefabToReplace) as GameObject;
-        newObject.transform.position = selectedObject.transform.position;
-        newObject.transform.rotation = selectedObject.transform.rotation;
-        newObject.transform.localScale = selectedObject.transform.localScale;
-        newObject.transform.parent = selectedObject.transform.parent;
+        foreach (var selectedObject in Selection.gameObjects)
+        {
+            var newObject = PrefabUtility.InstantiatePrefab(prefabToReplace) as GameObject;
+            newObject.transform.position = selectedObject.transform.position;
+            newObject.transform.rotation = selectedObject.transform.rotation;
 
-        Undo.RegisterCreatedObjectUndo(newObject, "Replace with Prefab");
-        Undo.DestroyObjectImmediate(selectedObject);
-    }
+            if(!resetScale)
+            {
+               newObject.transform.localScale = selectedObject.transform.localScale; 
+            }
+            
+            newObject.transform.parent = selectedObject.transform.parent;
+
+            Undo.RegisterCreatedObjectUndo(newObject, "Replace with Prefab");
+            Undo.DestroyObjectImmediate(selectedObject);
+        }
     }
 }

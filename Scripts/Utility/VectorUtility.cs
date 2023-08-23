@@ -10,4 +10,8 @@ public class VectorUtility : MonoBehaviour
     {
         return new Vector3(vectorToFlatten.x, desiredYValue, vectorToFlatten.z);
     }
+    static public Vector3 GetDirection(Vector3 from, Vector3 to)
+    {
+        return to - from;
+    }
 }

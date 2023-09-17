@@ -12,6 +12,6 @@ public class VectorUtility : MonoBehaviour
     }
     static public Vector3 GetDirection(Vector3 from, Vector3 to)
     {
-        return to - from;
+        return (to - from).normalized;
     }
 }
